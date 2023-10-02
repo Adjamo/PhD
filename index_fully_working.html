@@ -1,0 +1,1572 @@
+<html>
+<head>
+
+  <title>Hyper Experimental Test Server</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+
+</head>
+<body>
+<body bgcolor="#3EB489">
+<font color="white">
+
+<!-- Dependencies: nodejs  ( actually i think not :) -->
+
+
+<br>
+
+<br>
+<style>
+div{
+  display: inline
+}
+table, tr, td {
+  color: white;
+  
+  width:80%;
+  
+}
+.linky{
+  color:skyblue;
+  cursor: pointer;
+  
+}
+</style>
+
+<center>
+
+<table cellpadding="0" cellspacing="0" border="0">
+
+<tr>
+<td colspan="4">
+
+<div id="_"><h1><center>9kun - Hyper Experimental Test Server</center></h1></div>
+
+</td></tr>
+<tr><td>
+<center>
+<img src="bnb.png"><br><br>
+<img src="buy.png">
+
+</center>
+</td>
+<td width="100%" style="max-width:300px;text-align:left;">
+<center>
+<h1>
+<a class="linky" onclick="showAll('')">#all</a>
+<a class="linky" onclick="showHide('biz')">#biz</a>
+<a class="linky" onclick="showHide('random')">#random</a>
+<a class="linky" onclick="showHide('pol')">#pol</a>
+<a class="linky" onclick="showHide('anime')">#anime</a>
+<a class="linky" onclick="showHide('mu')">#mu</a>
+<br>
+</h1>
+
+<h3>Make your own board by using <a class="linky" onclick="showHide('hashtags')">#hashtags</a></h3>
+<br><img src="_trans.png" width="300px">
+</center>
+</td>
+<td>
+
+<br><img src="_trans.png" width="100px">
+
+</td>
+<td>
+<img src="yotsuba.png" width="500px">
+</td>
+</tr>
+<tr>
+<td colspan="4">
+<font size="5">
+Messages:
+<br>
+<p id="p1"><img src="dave.png"></p><br>
+</font>
+
+
+<input id="w3review" name="w3review" rows="2" cols="50" value="type your message here">
+
+<button class="sendEthButton btn" rows="2">Post Message</button>
+<br>
+<br>
+<br>
+
+</td>
+</tr>
+</table>
+
+</font>
+
+</center>
+
+ <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+ 
+<script> 
+ 
+ 
+const web3 = new Web3('wss://blissful-frequent-energy.bsc-testnet.discover.quiknode.pro/098de54949e50200fed66b09a2c2fe2c26ba2b19/');
+
+
+const ethereumButton = document.querySelector('.enableEthereumButton');
+const sendEthButton = document.querySelector('.sendEthButton');
+
+let accounts = [];
+
+//var my_data = web3.toHex('xxxx');
+
+
+
+//Sending Ethereum to an address
+sendEthButton.addEventListener('click', () => {
+
+  if(window.ethereum.networkVersion == 97){  // testnet: 97  main BSC: 56 // 97 for TESTing 56 for deployment!
+    
+    // legitimate bsc main net transaction
+    //0x5abc50f76ded7659c135029ed37f603728731ec69007dbb7a75adb615a1bd6d8
+    
+    
+    runCode();
+
+  }else{
+  
+    changeNetwork()
+
+  }
+
+
+});
+
+
+function showAll(foo){
+
+  w3review.value = foo
+
+  myFilter = foo
+  document.getElementById("p1").innerHTML = '<img src="dave.png">'
+  //loadComments(foo)
+  
+  document.getElementById("p1").innerHTML = ''
+  
+  for(i=0;i<msgArray.length;i++){
+    if(i==0){
+      filterMsgs('<br>'+msgArray[i], foo)
+    }else{
+      filterMsgs(msgArray[i], foo)
+    }
+  //alert(msgArray)
+  }
+
+}
+
+function showHide(foo){
+
+  w3review.value = '#' + foo
+
+  myFilter = foo
+  document.getElementById("p1").innerHTML = '<img src="dave.png">'
+  //loadComments(foo)
+  
+  document.getElementById("p1").innerHTML = ''
+  
+  for(i=0;i<msgArray.length;i++){
+    if(i==0){
+      filterMsgs('<br>'+msgArray[i],'#'+foo)
+    }else{
+      filterMsgs(msgArray[i],'#'+foo)
+    }
+  //alert(msgArray)
+  }
+
+}
+
+function greeny(foo){
+
+  green = ''
+  green_end = ''
+  
+  if(foo.substr(132,foo.length).includes('&gt;')){ // green text
+    green = '<font color="green">'
+    green_end = '</font>'
+  }
+  
+  return green + foo + green_end
+
+}
+
+function linkMaker(foo){
+
+  if(foo.includes('http')){ // green text
+  
+    bar = foo.indexOf('http')
+    baz = foo.substr( bar, foo.length)
+   
+    //alert('image found! ' + foo)
+    foo = foo.substr(0, bar) + '<img src="' + foo.substr(bar, baz.indexOf(' ')) + '" height="200">' + baz.substr(baz.indexOf(' '), baz.length)
+
+  }
+
+  return foo
+
+}
+
+function linkify(foo){
+  
+  
+  // add a tag to search by hashtag
+  if(foo.includes('#')){
+    
+    bar = foo.substr(foo.indexOf('#'), foo.length)
+    
+    //anythingelse
+    foo = '<div id=' + foo.substr(foo.indexOf('#') + 1, bar.indexOf(' ')-1) + '>' + foo.substr(0, foo.indexOf('#')) + '<a  onclick="showHide(\'' + foo.substr(foo.indexOf('#') + 1, bar.indexOf(' ')-1) + '\')" class="linky">' + bar.substr(0,bar.indexOf(' ') ) +'</a>' +  linkify(bar.substr(bar.indexOf(' '), bar.length)) + '</div>'
+
+    foo = greeny(foo)
+
+    foo = linkMaker(foo)
+
+    return foo
+
+  }else{
+  
+    foo = greeny(foo)
+
+    foo = linkMaker(foo)
+
+    return '<div id="_">' + foo + '</div>'
+  }
+  
+}
+
+function sanitize(string) {
+  const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+  };
+  const reg = /[&<>"']/ig;
+  return string.replace(reg, (match)=>(map[match]));
+}
+
+msgArray = []
+
+
+function filterMsgs(value, foo){
+
+  // only print relevant tags to screen
+
+  if( value.includes(foo) ){//foo.toString()
+    
+    document.getElementById("p1").innerHTML += value
+
+  }
+    
+  
+}
+
+
+function updateMsgs(value, foo){
+
+  //alert(foo)
+
+  if(foo == ''){
+    
+    bar = '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' ' + value.from + '<br></td></tr>'
+    
+    msgArray.push(bar)
+    
+    document.getElementById("p1").innerHTML += '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' Block: '  + value.blockNumber+'<br></td></tr>'
+
+  }else{ // only print relevant tags to screen
+    
+    bar = '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' ' + value.from +'<br></td></tr>'
+
+    msgArray.push(bar)
+    
+    if( bar.includes(foo) ){//foo.toString()
+          
+      document.getElementById("p1").innerHTML += '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' '  + value.from+'<br></td></tr>'
+
+    msgArray.push(bar)
+
+    }
+    
+  }
+
+}
+
+
+function addMsgs(value, foo){
+
+  //alert(foo)
+
+  if(foo == ''){
+
+    bar = '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' ' + value.from + '<br></td></tr>'
+    
+    msgArray.push(bar)
+    
+    document.getElementById("p1").innerHTML += '<tr><td colspan="2"><div id="'+value.from+'">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' ' + value.from+'<br></td></tr>'
+
+  }else{ // only print relevant tags to screen
+
+    if( value.includes(foo) ){//foo.toString()
+      
+      bar = '<tr><td colspan="2">' + linkify(sanitize(web3.utils.hexToAscii(value.input))) + ' ' + value.from + '<br></td></tr>'
+    
+      msgArray.push(bar)
+    
+      document.getElementById("p1").innerHTML += value
+
+    }
+    
+  }
+
+}
+
+function loadComments(foo, depth){
+
+var address = "0x1c68ae1ba9403f04aae99a5fdc4f51c43fb2e086";// contract address
+
+const jsonInterface = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "TransferMessage",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "_maxTxAmount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "subtractedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "decreaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "excludeAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "includeAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "addedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "increaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "isExcluded",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "myString",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "reflect",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "deductTransferFee",
+				"type": "bool"
+			}
+		],
+		"name": "reflectionFromToken",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "rAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenFromReflection",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "transferMessage",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
+
+// Create contract object
+var MyContract = new web3.eth.Contract(jsonInterface, address);
+
+//var Contract = require('web3-eth-contract');
+
+// set provider for all later instances to use
+MyContract.setProvider('wss://blissful-frequent-energy.bsc-testnet.discover.quiknode.pro/098de54949e50200fed66b09a2c2fe2c26ba2b19/');
+
+try{
+// code
+//document.getElementById("p1").innerHTML = 'hello?'
+
+}catch(err){
+alert(err)
+}
+
+web3.eth.getBlockNumber().then( function(blocknum){ 
+        
+	MyContract.getPastEvents('Transfer', {
+	    filter: {         to: "0xb1Bf2555be2d8C0515505906ECAA5f3E4ce3672d"}, // I am attempting to leave it empty
+	    fromBlock: (blocknum - (9000 + depth) ),//9000
+	    toBlock: blocknum - depth
+	}, function(error, events){ /*alert(error)*/ })
+	.then(function(events){
+	    
+            document.getElementById("p1").innerHTML = '<br>'
+    
+            console.log(events.length)
+            if(events.length == 0 ){ // do a loop here of 10 loops that retrieve messages            
+              
+              document.getElementById("p1").innerHTML = 'No posts in last ' + (depth + 9000) + '  blocks (a few hours) ... scanning deeper ...'
+              
+              loadComments(foo, (depth + 9000) )
+               
+            }else{
+            
+            //events.reverse();// latest comment first
+             
+            var newArray = events.map(function(item,index){
+              
+	      web3.eth.getTransaction(item.transactionHash).then(value => 
+	        
+                addMsgs(value, foo)
+
+              );
+              
+            });
+            
+            }
+
+              //web3.utils.toUtf8(value.input)
+	      //console.log('@')
+	    
+	    
+	}).catch(function (error) {
+	     /*alert(error);*/
+	});
+	;
+
+
+} );
+
+var subscription = web3.eth.subscribe('logs', {
+    address: '0x1c68ae1ba9403f04aae99a5fdc4f51c43fb2e086',// contract address
+
+}, function(error, result){
+    if (!error)
+
+              web3.eth.getTransaction(result.transactionHash).then(value => 
+	        
+                updateMsgs(value, getFilter())
+                
+              );
+});
+
+}
+
+var myFilter = '';
+
+function getFilter(){
+
+  return myFilter
+  
+}
+
+$(window).on('load', function() {
+  
+  getAccount();
+  
+  changeNetwork()
+  
+  loadComments('',0)
+  
+  // code here
+  
+});
+
+ethereumButton.addEventListener('click', () => {
+
+  changeNetwork()
+
+});
+
+async function changeNetwork() {
+
+  ethereum.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: '0x38' }],// 0x61 for BSC testnet // 0x38 for BSC
+  })
+
+}
+
+// check network
+
+//A transaction sending an ERC-20 token needs to have the token contract as the recipient (the to field)
+var myAddress = '0xb1bf2555be2d8c0515505906ecaa5f3e4ce3672d';// my address
+
+function getDataFieldValue(tokenRecipientAddress, tokenAmount) {
+    const web3 = new Web3();
+    const TRANSFER_FUNCTION_ABI = {"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"},{"name":"_something","type":"string"}],"name":"transferMessage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"};
+    return web3.eth.abi.encodeFunctionCall(TRANSFER_FUNCTION_ABI, [
+        tokenRecipientAddress,
+        tokenAmount,
+        w3review.value + ' '
+    ]);
+}
+
+async function runCode() {
+
+// newest ABI 9kun with transfer memory
+const jsonInterface = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "TransferMessage",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "_maxTxAmount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "subtractedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "decreaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "excludeAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "includeAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "addedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "increaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "isExcluded",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "myString",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "reflect",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "deductTransferFee",
+				"type": "bool"
+			}
+		],
+		"name": "reflectionFromToken",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "rAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenFromReflection",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "transferMessage",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
+
+
+
+//contract address
+//0x1c68ae1ba9403f04aae99a5fdc4f51c43fb2e086 // newest with memory
+
+//var contractABI = jsonInterface
+
+//user address
+//ethereum.selectedAddress
+
+//my address
+//0xb1Bf2555be2d8C0515505906ECAA5f3E4ce3672d
+
+
+if (window.ethereum.isMetaMask) {
+//console.log('MetaMask is active')
+
+  const transactionParameters = {
+    from: ethereum.selectedAddress,
+    to: "0x1c68ae1ba9403f04aae99a5fdc4f51c43fb2e086",// contract address
+    data: getDataFieldValue("0xb1Bf2555be2d8C0515505906ECAA5f3E4ce3672d", 5000000000),// reciever, amount (5 9kun)
+    
+  };
+
+//HERE WORKING
+
+  await ethereum.request({
+    method: 'eth_sendTransaction',
+    params: [transactionParameters],
+  });
+
+} else {
+//console.log('MetaMask is not available')
+//use wallet connect
+
+
+}
+
+
+
+
+}
+
+async function getAccount() {
+
+ethereum.request({
+  method: 'wallet_switchEthereumChain',
+  params: [{ chainId: '0x61' }], // chainId must be in hexadecimal numbers // 0x38 for BSC Mainnet!
+});
+
+  //etherium.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x61' }], // chainId must be in hexadecimal numbers
+  //});
+  accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+}
+
+
+
+</script>
+
+
+</body>
+<html>
