@@ -1,0 +1,214 @@
+<html>
+<head>
+
+  <title>Message Server</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+
+</head>
+<body>
+<body bgcolor="#3EB489">
+<font color="white">
+
+<br>
+
+<br>
+<style>
+div{
+  display: inline
+}
+table, tr, td {
+  color: white;
+  
+  width:80%;
+  
+}
+.linky{
+  color:skyblue;
+  cursor: pointer;
+  
+}
+</style>
+
+<center>
+
+<table cellpadding="0" cellspacing="0" border="0">
+
+<tr>
+<td colspan="4">
+
+<div id="_"><h1><center>Message Server</center></h1></div>
+
+</td></tr>
+<tr><td>
+<center>
+
+<input id="w3review" name="w3review" rows="2" cols="50" value="type your message here">
+
+<button class="sendEthButton btn" rows="2">Post Message</button>
+<br>
+<br>
+<br>
+
+</td>
+</tr>
+</table>
+
+</font>
+
+</center>
+
+ <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+ 
+<script> 
+ 
+ 
+const web3 = new Web3('wss://blissful-frequent-energy.bsc-testnet.discover.quiknode.pro/098de54949e50200fed66b09a2c2fe2c26ba2b19/');
+
+const sendEthButton = document.querySelector('.sendEthButton');
+
+let accounts = [];
+
+//Sending Ethereum to an address
+sendEthButton.addEventListener('click', () => {
+
+  if(window.ethereum.networkVersion == 97){  // testnet: 97  main BSC: 56 // 97 for TESTing 56 for deployment!
+    
+    // legitimate bsc main net transaction
+    //0x5abc50f76ded7659c135029ed37f603728731ec69007dbb7a75adb615a1bd6d8
+    
+    
+    runCode();
+
+  }else{
+  
+    changeNetwork()
+
+  }
+
+
+});
+
+msgArray = []
+
+
+
+var myFilter = '';
+
+function getFilter(){
+
+  return myFilter
+  
+}
+
+$(window).on('load', function() {
+  
+  getAccount();
+  
+  changeNetwork()
+  
+  // code here
+  
+});
+
+ethereumButton.addEventListener('click', () => {
+
+  changeNetwork()
+
+});
+
+async function changeNetwork() {
+
+  ethereum.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: '0x38' }],// 0x61 for BSC testnet // 0x38 for BSC
+  })
+
+}
+
+// check network
+
+//A transaction sending an ERC-20 token needs to have the token contract as the recipient (the to field)
+var myAddress = '0xb1bf2555be2d8c0515505906ecaa5f3e4ce3672d';// my address
+
+function getDataFieldValue(tokenRecipientAddress, tokenAmount) {
+    const web3 = new Web3();
+    const TRANSFER_FUNCTION_ABI = {"constant":false,"inputs":[{"name":"_something","type":"string"},{"name":"_something_2","type":"uint8"}],"name":"transferMessage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"};
+    return web3.eth.abi.encodeFunctionCall(TRANSFER_FUNCTION_ABI, [
+        //tokenRecipientAddress,
+        //tokenAmount,
+        w3review.value + ' ',
+        123
+    ]);
+}
+
+async function runCode() {
+
+	// newest ABI 
+	const jsonInterface = [
+		{
+			"anonymous": false,
+			"inputs": [],
+			"name": "TransferMessage",
+			"type": "event"
+		}
+	]
+
+
+
+	//contract address
+	// // newest with memory
+
+	//var contractABI = jsonInterface
+
+	//user address
+	//ethereum.selectedAddress
+
+	//my address
+	//0xb1Bf2555be2d8C0515505906ECAA5f3E4ce3672d
+
+
+	if (window.ethereum.isMetaMask) {
+	//console.log('MetaMask is active')
+
+	  const transactionParameters = {
+	    from: ethereum.selectedAddress,
+	    to: "0x1d2323ffe1495d277e935b05e205ed0d0ea09529",// contract address
+	    data: getDataFieldValue("0xb1Bf2555be2d8C0515505906ECAA5f3E4ce3672d", 1),// reciever, amount (0 9kun)
+	    
+	  };
+
+	//HERE WORKING
+
+	  await ethereum.request({
+	    method: 'eth_sendTransaction',
+	    params: [transactionParameters],
+	  });
+
+	} else {
+	//console.log('MetaMask is not available')
+	//use wallet connect
+	}
+
+}
+
+async function getAccount() {
+
+ethereum.request({
+  method: 'wallet_switchEthereumChain',
+  params: [{ chainId: '0x61' }], // chainId must be in hexadecimal numbers // 0x38 for BSC Mainnet!
+});
+
+  //etherium.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x61' }], // chainId must be in hexadecimal numbers
+  //});
+  accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+}
+
+
+
+</script>
+
+
+</body>
+<html>
